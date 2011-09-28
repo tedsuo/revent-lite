@@ -23,7 +23,7 @@ with open('form.html','r') as f:
 
 # setup database connection and Events model
 client 	= gdata.spreadsheet.text_db.DatabaseClient(username='ted@radicaldesigns.org',password='ryogas12')
-db 		= client.GetDatabases(spreadsheet_key='0Audib9Y4DZuxdDMtX3Voa0ZGcldzSzR4TGwxLWtWMUE')[0]
+db      = client.GetDatabases(spreadsheet_key='0Audib9Y4DZuxdDMtX3Voa0ZGcldzSzR4TGwxLWtWMUE')[0]
 Events 	= db.GetTables(name='events')[0]
 
 # RESTFUL Google Spreadsheet Controller
