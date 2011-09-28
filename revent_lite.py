@@ -10,7 +10,6 @@ from datetime import datetime
 # geocode gets lat,long for an address
 def geocode(address):
 	url = 'http://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false' % address
-	print url
 	f = urllib.urlopen(url)
 	return json.loads(f.read())['results'][0]['geometry']['location']
 
