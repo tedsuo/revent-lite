@@ -11,7 +11,9 @@ from datetime import datetime
 def geocode(address):
 	url = 'http://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false' % address
 	f = urllib.urlopen(url)
-	return json.loads(f.read())['results'][0]['geometry']['location']
+	location = json.loads(f.read())['results'][0]['geometry']['location']
+        cherrypy.log(repr( location ))
+        return location
 
 # used to format data for geocoder
 address_template = Template('$address, $city, $zip')
@@ -22,18 +24,15 @@ with open('form.html','r') as f:
 
 # setup database connection and Events model
 client 	= gdata.spreadsheet.text_db.DatabaseClient(username='ted@radicaldesigns.org',password='ryogas12')
-db      = client.GetDatabases(spreadsheet_key='0Audib9Y4DZuxdDMtX3Voa0ZGcldzSzR4TGwxLWtWMUE')[0]
-Events 	= db.GetTables(name='events')[0]
+db      = client.GetDatabases(spreadsheet_key='0AgCuKXHzk8-UdC15RWZKNmF6dU56R3hiUW1EV2p2QUE')[0]
+Events 	= db.GetTables(name='Sheet1')[0]
 
 # RESTFUL Google Spreadsheet Controller
 class EventController:
-	def index(self):
-		return form_html
-	index.exposed = True
 
-	def create(self,name,address,city,zip,description,host_name,email,phone,start_time,end_time):
+	def index(self,name,address,city,zip,description,host_name,email,phone,start_time,end_time):
 		location = geocode(address=address_template.substitute(address=address, city=city, zip=zip))
-		Events.AddRecord({ 
+		record = { 
 			'timestamp':str(datetime.now()),
 			'nameofevent': name, 
 			'streetaddressorintersectionofevent': address, 
@@ -46,9 +45,13 @@ class EventController:
 			"eventendtime" : end_time, 
 			'lat': str(location['lat']), 
 			'long': str(location['lng']) 
-		})
+		}
+                cherrypy.log(repr( record))
+		result = Events.AddRecord(record)
+                cherrypy.log(repr( result))
+                cherrypy.log(repr( 'successfuly added record'))
 		return 'success'
-	create.exposed = True
+	index.exposed = True
 
 # start the server
 cherrypy.quickstart(EventController())
